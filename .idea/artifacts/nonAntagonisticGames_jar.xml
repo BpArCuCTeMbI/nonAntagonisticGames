@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="nonAntagonisticGames:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/nonAntagonisticGames_jar</output-path>
+    <root id="archive" name="nonAntagonisticGames.jar">
+      <element id="module-output" name="nonAntagonisticGames" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../xchart/xchart-3.5.2/xchart-3.5.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
