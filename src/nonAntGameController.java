@@ -118,7 +118,7 @@ public class nonAntGameController {
 
     @FXML
     void convexHullButtonPressed(ActionEvent event) {
-        mdl.calcConvexSet();
+        mdl.calcConvexHullJarvis();
         mdl.plotConvex();
     }
 

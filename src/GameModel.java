@@ -54,6 +54,7 @@ public class GameModel {
     public void debugDummy(){
 
     }
+
     public void setProbOfFirstStratFirst(double probOfFirstStratFirst) {
         this.probOfFirstStratFirst = probOfFirstStratFirst;
     }
@@ -178,6 +179,53 @@ public class GameModel {
             auxStackList.add(auxArr[i]);
         }
         convexHullIndexes = auxStackList;
+
+    }
+
+    public void calcConvexHullJarvis(){
+        double[][] fSet = new double[outData.getOutcomeX().length][2];
+        int size = fSet.length;
+
+        for(int i = 0; i < size; i++){
+            fSet[i][0] = outData.getOutcomeX()[i];
+            fSet[i][1] = outData.getOutcomeY()[i];
+        }
+        ArrayList<Integer> auxArr = new ArrayList<>();
+
+        for(int i = 0; i < size; i++){
+            auxArr.add(i);
+        }
+        //set the leftmost point as first in the fSet
+        for(int i = 0; i < size; i++){
+            if(fSet[auxArr.get(i)][0] <= fSet[auxArr.get(0)][0]){
+                int tmp = auxArr.get(i);
+                auxArr.set(i, auxArr.get(0));
+                auxArr.set(0, tmp);
+            }
+        }
+
+        ArrayList<Integer> retHullIndexes = new ArrayList<>();
+        //leftmost point is always in the hull set
+        retHullIndexes.add(auxArr.get(0));
+        auxArr.remove(0);
+        auxArr.add(retHullIndexes.get(0));
+
+        while (true){
+            int right = 0;
+            for(int i = 0; i < auxArr.size(); i++){
+                if(checkPointAngle(retHullIndexes.get(retHullIndexes.size() - 1), auxArr.get(right), auxArr.get(i), fSet) < 0){
+                    right = i;
+                }
+            }
+            if (auxArr.get(right) == retHullIndexes.get(0)){
+                break;
+            }
+            else{
+                retHullIndexes.add(auxArr.get(right));
+                auxArr.remove(right);
+            }
+        }
+        convexHullIndexes = retHullIndexes;
 
     }
 
