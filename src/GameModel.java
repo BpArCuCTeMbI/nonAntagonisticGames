@@ -4,6 +4,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.lines.SeriesLines;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -183,20 +184,65 @@ public class GameModel {
     }
 
     public void calcConvexHullJarvis(){
-        double[][] fSet = new double[outData.getOutcomeX().length][2];
-        int size = fSet.length;
+        //TODO: getting wrong results in the end because of repeating points (-1;-1), (-0.6; -0.4),etc
 
-        for(int i = 0; i < size; i++){
+        double[][] fSet = new double[outData.getOutcomeX().length][2];
+        for(int i = 0; i < fSet.length; i++){
             fSet[i][0] = outData.getOutcomeX()[i];
             fSet[i][1] = outData.getOutcomeY()[i];
         }
+
+        //======================redundant code for tests
+        ArrayList<Point2D> tmpArr = new ArrayList<>();
+        for(int i = 0; i < fSet.length; i++){
+            tmpArr.add(new Point2D(fSet[i][0], fSet[i][1]));
+        }
+
+        for(int i = 0; i < tmpArr.size(); i++){
+            for(int j = i + 1; j < tmpArr.size(); j++){
+                if(tmpArr.get(i).getX() == tmpArr.get(j).getX() && tmpArr.get(i).getY() == tmpArr.get(j).getY()){
+                    tmpArr.remove(j);
+                }
+            }
+        }
+
+        //=========================
+        //================
+
+        fSet = new double[tmpArr.size()][2];
+        for(int i = 0; i < tmpArr.size(); i++){
+            fSet[i][0] = tmpArr.get(i).getX();
+            fSet[i][1] = tmpArr.get(i).getY();
+        }
+
+        //========
+        double[] tmpX = new double[tmpArr.size()];
+        double[] tmpY = new double[tmpArr.size()];
+        for(int i = 0; i < tmpArr.size(); i++){
+            tmpX[i] = tmpArr.get(i).getX();
+            tmpY[i] = tmpArr.get(i).getY();
+        }
+        /*
+        OutcomesData tmpData = new OutcomesData();
+        tmpData.setOutcomeX(tmpX);
+        tmpData.setOutcomeY(tmpY);
+        outData = tmpData;
+
+        XYChart chart = new XYChartBuilder().width(400).height(400).xAxisTitle("Winnings of 1st player").yAxisTitle("Winnings of 2nd player").title("Set of Winnings").build();
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+        chart.addSeries("Set of Wins", outData.getOutcomeX(), outData.getOutcomeY()).setMarker(SeriesMarkers.CIRCLE).setLineStyle(SeriesLines.NONE);
+        new SwingWrapper(chart).displayChart().setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        */
+        //=====
+        //====================
         ArrayList<Integer> auxArr = new ArrayList<>();
 
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < fSet.length; i++){
             auxArr.add(i);
         }
         //set the leftmost point as first in the fSet
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < fSet.length; i++){
             if(fSet[auxArr.get(i)][0] <= fSet[auxArr.get(0)][0]){
                 int tmp = auxArr.get(i);
                 auxArr.set(i, auxArr.get(0));
@@ -224,6 +270,7 @@ public class GameModel {
                 retHullIndexes.add(auxArr.get(right));
                 auxArr.remove(right);
             }
+            //System.out.println("x: " + fSet[(retHullIndexes.size() - 1)][0] + "; y: " + fSet[(retHullIndexes.size() - 1)][1]);
         }
         convexHullIndexes = retHullIndexes;
 
@@ -238,6 +285,7 @@ public class GameModel {
             y[i] = outData.getOutcomeY()[convexHullIndexes.get(i)];
         }
         chart.addSeries("Convex Hull", x, y).setMarker(SeriesMarkers.DIAMOND).setMarkerColor(Color.RED).setLineStyle(SeriesLines.SOLID).setLineColor(Color.BLACK);
+        debugDummy();
     }
 
 }
