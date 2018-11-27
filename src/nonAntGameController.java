@@ -8,19 +8,20 @@ import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.style.Styler;
-import org.knowm.xchart.style.colors.SeriesColors;
 import org.knowm.xchart.style.lines.SeriesLines;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.text.NumberFormat;
 
 public class nonAntGameController {
 
     private GameModel mdl;
 
-    private static final double INIT_SLD_VAL = 0.02;
+    private JFrame fr;
+
+    private static final double INIT_SLD_VAL = 0.2;
 
     @FXML
     private TextField amountOfPointsTextField;
@@ -76,13 +77,14 @@ public class nonAntGameController {
             mdl.getWinValue()[3][0] = Double.parseDouble(otwTextField.getText());
             mdl.getWinValue()[3][1] = Double.parseDouble(othTextField.getText());
 
-            OutcomesData data = mdl.calcWinning();
-            mdl.setOutData(data);
+            mdl.calcWinning();
 
             XYChart chart = new XYChartBuilder().width(400).height(400).xAxisTitle("Winnings of 1st player").yAxisTitle("Winnings of 2nd player").title("Set of Winnings").build();
-            chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
-            chart.addSeries("Set of Wins", data.getOutcomeX(), data.getOutcomeY()).setMarker(SeriesMarkers.CIRCLE).setLineStyle(SeriesLines.NONE);
-            new SwingWrapper(chart).displayChart().setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+            //chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+            chart.addSeries("Set of Wins", mdl.getOutData().getOutcomeX(), mdl.getOutData().getOutcomeY()).setMarker(SeriesMarkers.CIRCLE).setLineStyle(SeriesLines.NONE);
+            fr = new SwingWrapper(chart).displayChart();
+            fr.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
             mdl.setChart(chart);
 
@@ -99,12 +101,13 @@ public class nonAntGameController {
 
     @FXML
     void resetButtonPressed(ActionEvent event) {
-        mdl.debugDummy();
+        mdl.getIncr().unbind();
+        fr.dispatchEvent(new WindowEvent(fr, WindowEvent.WINDOW_CLOSING));
         mdl = new GameModel();
-        pointsSlider.setValue(INIT_SLD_VAL);
-        mdl.getIncr().bind(pointsSlider.valueProperty());
-        amountOfPointsTextField.setText(new Double(INIT_SLD_VAL).toString());
+        amountOfPointsTextField.setText(Double.toString(INIT_SLD_VAL));
         amountOfPointsTextField.textProperty().bindBidirectional(pointsSlider.valueProperty(), NumberFormat.getNumberInstance());
+        mdl.getIncr().bind(pointsSlider.valueProperty());
+        pointsSlider.setValue(INIT_SLD_VAL);
     }
 
     @FXML
@@ -112,13 +115,18 @@ public class nonAntGameController {
         mdl = new GameModel();
         pointsSlider.setValue(INIT_SLD_VAL);
         mdl.getIncr().bind(pointsSlider.valueProperty());
-        amountOfPointsTextField.setText(new Double(INIT_SLD_VAL).toString());
+        amountOfPointsTextField.setText(Double.toString(INIT_SLD_VAL));
         amountOfPointsTextField.textProperty().bindBidirectional(pointsSlider.valueProperty(), NumberFormat.getNumberInstance());
     }
 
     @FXML
     void convexHullButtonPressed(ActionEvent event) {
-        mdl.calcConvexHullJarvis();
+        mdl.calcConvexHull();
+
+        for(int i = 0; i < mdl.getConvexHullX().length; i++){
+            System.out.printf("%.8f;%.8f\n", mdl.getConvexHullX()[i], mdl.getConvexHullY()[i]);
+        }
+
         mdl.plotConvex();
     }
 
