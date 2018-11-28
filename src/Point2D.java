@@ -22,4 +22,16 @@ public class Point2D {
         this.x = x;
         this.y = y;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj){
+            return true;
+        }else if(obj == null || getClass() != obj.getClass()){
+            return  false;
+        }
+
+        Point2D pnt = (Point2D) obj;
+        return x == pnt.getX() && y == pnt.getY();
+    }
 }

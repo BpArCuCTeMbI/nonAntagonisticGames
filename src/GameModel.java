@@ -25,19 +25,16 @@ public class GameModel {
 
     /**
      *
-     * @param a is the base point
-     * @param b is the point which is
-     * @param c is the index of the 3rd point in the fSet, we are trying to understand
-     *          if this point is to the left or to the right relative to the vector ab.
-     * @return z > 0 => c to the right; z < 0 - c to the left, z = 0 - collinear
+     * @param a point a of vector AB
+     * @param b point b of vector AB
+     * @param c point c of vector AC
+     * @return 0 if point C is on line AB, >0 if C is on the right, <0 if C is on the left.
      */
-
     private double crossProduct(Point2D a, Point2D b, Point2D c){
         Point2D vec1 = new Point2D(b.getX() - a.getX(), b.getY() - a.getY());
         Point2D vec2 = new Point2D(c.getX() - a.getX(), c.getY() - a.getY());
 
-        double ret = vec1.getX() * vec2.getY() - vec1.getY() * vec2.getX();
-        return ret;
+        return vec1.getX() * vec2.getY() - vec1.getY() * vec2.getX();
     }
 
     private double S1(double x, double y){
@@ -141,10 +138,81 @@ public class GameModel {
         outData = data;
     }
 
-    private double isCloserToCurrentPoint(Point2D a, Point2D b, Point2D c){
-        double distAB = Math.sqrt(Math.pow(b.getX() - a.getX(), 2) + Math.pow(b.getY() - a.getY(), 2));
-        double distAC = Math.sqrt(Math.pow(c.getX() - a.getX(), 2) + Math.pow(c.getY() - a.getY(), 2));
+    /**
+     *
+     * @param a point A
+     * @param b point B
+     * @param c point C
+     * @return 0 if B and C are on the same distance from  A. < 0 if B is closer to A. >0 if C is closer to A.
+     */
+    private double compareDistanceToCurrentPoint(Point2D a, Point2D b, Point2D c){
+        double distAB = Math.pow(b.getX() - a.getX(), 2) + Math.pow(b.getY() - a.getY(), 2);
+        double distAC = Math.pow(c.getX() - a.getX(), 2) + Math.pow(c.getY() - a.getY(), 2);
         return Double.compare(distAB, distAC);
+    }
+
+    public void findConvexHull(){
+        ArrayList<Point2D> auxArr = new ArrayList<>();
+
+        //unpack outcomes to ArrayListx
+        for(int i = 0; i < outData.getOutcomeX().length; i++){
+            auxArr.add(new Point2D(outData.getOutcomeX()[i], outData.getOutcomeY()[i]));
+        }
+        auxArr.trimToSize();
+
+
+        Point2D start = new Point2D(auxArr.get(0).getX(), auxArr.get(0).getY());
+        //find the leftmost start point
+        for(int i = 1; i < auxArr.size(); i++){
+            if(auxArr.get(i).getX() < start.getX()){
+                start = new Point2D(auxArr.get(i).getX(), auxArr.get(i).getY());
+            }
+        }
+
+        //create HashSet of points. Add point start to it, because it's always in the hull.
+        Point2D cur = start;
+        Set<Point2D> convHull= new HashSet<>();
+        convHull.add(start);
+        ArrayList<Point2D> collPoints = new ArrayList<>();
+
+        while(true){
+            Point2D nextTarget = auxArr.get(0);
+
+            //iterate through all points in auxArr
+            for(int i = 1; i < auxArr.size(); i++){
+                if(auxArr.get(i).equals(cur)){
+                    continue;
+                }
+
+                double val = crossProduct(cur, nextTarget, auxArr.get(i));
+
+                //if i-th point is on the left
+                if(val > 0){
+                    nextTarget = auxArr.get(i);
+                    collPoints = new ArrayList<>();
+                }else if(val == 0){
+                    if(compareDistanceToCurrentPoint(cur, nextTarget, auxArr.get(i)) < 0){
+                        collPoints.add(nextTarget);
+                        nextTarget = auxArr.get(i);
+                    }else{
+                        collPoints.add(auxArr.get(i));
+                    }
+                }
+            }
+
+            collPoints.trimToSize();
+            for(Point2D pnt : collPoints){
+                convHull.add(pnt);
+            }
+
+            if(nextTarget.equals(start)){
+                break;
+            }
+            convHull.add(nextTarget);
+            cur = nextTarget;
+        }
+
+        //TODO: write to arrays in GameModel
     }
 
     public void calcConvexHull(){
@@ -186,7 +254,7 @@ public class GameModel {
                     collinearPoints = new ArrayList<>();
                 }
                 else if(crossProductValue == 0){
-                    if(isCloserToCurrentPoint(cur, nextTarget, tmpArr.get(i)) < 0){
+                    if(compareDistanceToCurrentPoint(cur, nextTarget, tmpArr.get(i)) < 0){
                         //if point nextTarget is closer to cur than tmpArr.get(i)
                         collinearPoints.add(nextTarget);
                         nextTarget = tmpArr.get(i);
