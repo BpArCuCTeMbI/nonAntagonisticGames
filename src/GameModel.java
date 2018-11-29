@@ -5,10 +5,7 @@ import org.knowm.xchart.style.lines.SeriesLines;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class GameModel {
 
@@ -171,7 +168,7 @@ public class GameModel {
 
         //create HashSet of points. Add point start to it, because it's always in the hull.
         Point2D cur = start;
-        Set<Point2D> convHull= new HashSet<>();
+        Set<Point2D> convHull= new LinkedHashSet<>();
         convHull.add(start);
         ArrayList<Point2D> collPoints = new ArrayList<>();
 
@@ -213,79 +210,16 @@ public class GameModel {
         }
 
         //TODO: write to arrays in GameModel
-    }
-
-    public void calcConvexHull(){
-
-        //TODO: rewrite, recheck and refactor calcConvexHull()
-        //unpack outcomes to tmpArr
-
-        ArrayList<Point2D> tmpArr = new ArrayList<>();
-        for(int i = 0; i < outData.getOutcomeX().length; i++){
-            tmpArr.add(new Point2D(outData.getOutcomeX()[i], outData.getOutcomeY()[i]));
-        }
-
-        //find leftmost point
-        Point2D start = tmpArr.get(0);
-        for(int i = 1; i < tmpArr.size(); i++){
-            if(tmpArr.get(i).getX() < start.getX()){
-                start = tmpArr.get(i);
-            }
-        }
-
-        Point2D cur = start;
-        Set<Point2D> res = new HashSet<>();
-        res.add(start);
-
-        ArrayList<Point2D> collinearPoints = new ArrayList<>();
-        while(true){
-            Point2D nextTarget = tmpArr.get(0);
-            for(int i = 0; i < tmpArr.size(); i++){
-                if(tmpArr.get(i) == cur){
-                    continue;
-                }
-
-                double crossProductValue = crossProduct(cur, nextTarget, tmpArr.get(i));
-                //if value > 0 => Point (tmpArr.get(i)) is on the left from vector (cur; nextTarget).
-                //make it nextTarget
-                if(crossProductValue > 0){
-                    nextTarget = tmpArr.get(i);
-                    //reset coll points
-                    collinearPoints = new ArrayList<>();
-                }
-                else if(crossProductValue == 0){
-                    if(compareDistanceToCurrentPoint(cur, nextTarget, tmpArr.get(i)) < 0){
-                        //if point nextTarget is closer to cur than tmpArr.get(i)
-                        collinearPoints.add(nextTarget);
-                        nextTarget = tmpArr.get(i);
-                    }
-                    else{
-                        collinearPoints.add(tmpArr.get(i));
-                    }
-                }
-            }
-
-            for(Point2D pnt : collinearPoints){
-                res.add(pnt);
-            }
-
-            if(nextTarget == start){
-                break;
-            }
-
-            res.add(nextTarget);
-            cur = nextTarget;
-        }
-        convexHullX = new double[res.size()];
-        convexHullY = new double[res.size()];
-        Iterator it = res.iterator();
-        int i = 0;
-
-        for(Point2D pnt : res){
+        convexHullX = new double[convHull.size() + 1];
+        convexHullY = new double[convHull.size() + 1];
+        Iterator<Point2D> it = convHull.iterator();
+        for(int i = 0; i < convHull.size() && it.hasNext(); i++){
+            Point2D pnt = it.next();
             convexHullX[i] = pnt.getX();
             convexHullY[i] = pnt.getY();
-            i++;
         }
+        convexHullX[convexHullX.length - 1] = convexHullX[0];
+        convexHullY[convexHullY.length - 1] = convexHullY[0];
     }
 
     public void plotConvex(){

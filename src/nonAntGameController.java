@@ -121,8 +121,6 @@ public class nonAntGameController {
 
     @FXML
     void convexHullButtonPressed(ActionEvent event) {
-        //mdl.calcConvexHull();
-
         mdl.findConvexHull();
         for(int i = 0; i < mdl.getConvexHullX().length; i++){
             System.out.printf("%.8f;%.8f\n", mdl.getConvexHullX()[i], mdl.getConvexHullY()[i]);
