@@ -1,6 +1,7 @@
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import org.knowm.xchart.XYChart;
+import org.knowm.xchart.internal.series.AxesChartSeries;
 import org.knowm.xchart.style.lines.SeriesLines;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
@@ -53,20 +54,12 @@ public class GameModel {
 
     }
 
-    public XYChart getChart() {
-        return chart;
-    }
-
     public void setChart(XYChart chart) {
         this.chart = chart;
     }
 
     public OutcomesData getOutData() {
         return outData;
-    }
-
-    public void setOutData(OutcomesData outData) {
-        this.outData = outData;
     }
 
     public DoubleProperty getIncr() {
@@ -209,7 +202,6 @@ public class GameModel {
             cur = nextTarget;
         }
 
-        //TODO: write to arrays in GameModel
         convexHullX = new double[convHull.size() + 1];
         convexHullY = new double[convHull.size() + 1];
         Iterator<Point2D> it = convHull.iterator();
@@ -224,9 +216,16 @@ public class GameModel {
 
     public void plotConvex(){
 
-        chart.addSeries("Convex Hull", convexHullX, convexHullY).setMarker(SeriesMarkers.DIAMOND).setMarkerColor(Color.RED).setLineStyle(SeriesLines.SOLID).setLineColor(Color.BLACK);
-
-        debugDummy();
+        AxesChartSeries convSeries = chart.addSeries("Convex Hull", convexHullX, convexHullY)
+                .setMarker(SeriesMarkers.DIAMOND).setMarkerColor(Color.RED)
+                .setLineStyle(SeriesLines.SOLID).setLineColor(Color.BLACK);
+/*
+        String[] labels = new String[convexHullX.length];
+        for(int i = 0; i < convexHullX.length; i++){
+            labels[i] = String.valueOf(i);
+        }
+        convSeries.setToolTips(labels);
+        */
     }
 
 }

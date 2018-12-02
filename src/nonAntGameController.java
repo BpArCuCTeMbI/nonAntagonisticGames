@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.internal.series.AxesChartSeries;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.lines.SeriesLines;
 import org.knowm.xchart.style.markers.SeriesMarkers;
@@ -79,10 +80,18 @@ public class nonAntGameController {
 
             mdl.calcWinning();
 
+            /*
+            String[] labels = new String[mdl.getOutData().getOutcomeX().length];
+            for(String str : labels){
+                str = null;
+            }
+            */
             XYChart chart = new XYChartBuilder().width(400).height(400).xAxisTitle("Winnings of 1st player").yAxisTitle("Winnings of 2nd player").title("Set of Winnings").build();
             chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
-            //chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-            chart.addSeries("Set of Wins", mdl.getOutData().getOutcomeX(), mdl.getOutData().getOutcomeY()).setMarker(SeriesMarkers.CIRCLE).setLineStyle(SeriesLines.NONE);
+            //chart.getStyler().setToolTipsEnabled(true);
+            //chart.getStyler().setToolTipsAlwaysVisible(true);
+            AxesChartSeries setOfWins = chart.addSeries("Set of Wins", mdl.getOutData().getOutcomeX(), mdl.getOutData().getOutcomeY()).setMarker(SeriesMarkers.CIRCLE).setLineStyle(SeriesLines.NONE);
+            //setOfWins.setToolTips(labels);
             fr = new SwingWrapper(chart).displayChart();
             fr.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
